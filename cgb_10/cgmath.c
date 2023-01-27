@@ -99,11 +99,21 @@ float deg2rad(float deg)
     return deg * M_PI / 180.0f;
 }
 
+/**
+ * @param period in seconds.
+ * @param offset in seconds.
+ * @return the ratio between the current time, in seconds and milliseconds after
+ * the floaing point + the offset, and the period. 
+*/
 float timePeriod(unsigned long period, unsigned long offset)
 {
     struct timeval t;
+    // writes the number of seconds and microseconds since the Epoch to the first argument
     gettimeofday(&t, NULL);
     unsigned long seconds = ((unsigned long)(t.tv_sec) + offset) % period;
+    // convert microseconds to seconds
+    // TODO: Why is it identified by `miliseconds` and not `microseconds`?
+    // `microseconds` is a better indentifier.
     double miliseconds = (unsigned long)(t.tv_usec) / 1000000.0;
     double time = seconds + miliseconds;
     return (float)(time / period);

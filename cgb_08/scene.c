@@ -121,6 +121,9 @@ static mesh createCubeMesh(color col)
     };
 }
 
+/**
+ * @return an unit sphere.
+*/
 static mesh createSphereMesh(color col)
 {
     const int segments = 64;
@@ -189,9 +192,14 @@ static matrix calculateEarthRotation()
 
 static matrix calculateSatellitePosition()
 {
+    // Why 25?
+    // 6370 is the approximate radius of earth's equator in km.
     float scale = 25.0 / 6370.0;
 
+    // 5400 corresponds to 90 min..
     int orbitTime = 5400;
+    // We want the satellite at an altitude around the equator of 400km.
+    // So 6370 + 400 is 6770.
     float orbitRadius = 6770.0 / 6370.0;
     int orbitProgress = time(0) % orbitTime;
 
@@ -201,6 +209,7 @@ static matrix calculateSatellitePosition()
 
     static float tu = 0.1f;
     tu += 0.1f;
+    // `tumpling` means taumeln.
     matrix tumbling = matrixMultiply(matrixRotateY(deg2rad(tu)), matrixRotateZ(deg2rad(tu)));
 
     return matrixMultiply(orbit, matrixMultiply(translation, tumbling));

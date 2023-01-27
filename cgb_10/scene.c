@@ -55,32 +55,54 @@ void renderScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     loadCameraViewMatrix(0);
+    // TODO: Why disable it if it seemingly wasn't enabled before?
     glDisable(GL_LIGHT1);
+    // include the light in the evaluation of the lightning equation
     glEnable(GL_LIGHT2);
+    // effectively disabling blending
     glBlendFunc(GL_ONE, GL_ZERO);
     renderMesh(cubeMap, matrixScale(1), cubeMapTexture);
+    // TODO: Why clear the depth buffer?
+    // GL_LESS is the default value.
+    // By repeatedly clearing the depth buffer after we draw an object, we make
+    // sure the next object gets drawn.
     glClear(GL_DEPTH_BUFFER_BIT);
 
     loadCameraViewMatrix(1);
 
     vector4 lightPosition = {0, 0, 50000, 0};
+    // set light parameters
     glLightfv(GL_LIGHT1, GL_POSITION, (float*)&lightPosition);
 
+    // Why disable the first light again when it wasn't enabled?
     glDisable(GL_LIGHT1);
     glEnable(GL_LIGHT2);
     renderMesh(earthMesh, calculateEarthRotation(1), earthNightTexture);
     glClear(GL_DEPTH_BUFFER_BIT);
 
+    // 1 - color implies invert the color.
     glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    // draw the product of earth cloud texture with inverted colors and earth
+    // night texture
     renderMesh(earthMesh, calculateEarthRotation(0.08), earthCloudTexture);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glDisable(GL_LIGHT2);
     glEnable(GL_LIGHT1);
+
+    // TODO: In linear algebra isn't scalar-vector-addition defined?
+    // In newer versions of GLSL scalar operations between a scalar and a vector
+    // or matrix is component-wise.
+    // TODO: Why GL_ONE_MINUS_SRC_COLOR?
+    // GL_ONE implies we ignore the source color.
     glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+    // TODO: What's the default texture for GL_TEXTURE_2D?
+    // Do blending and ignore the default texture.
     renderMesh(earthMesh, calculateEarthRotation(1), 0);
     glClear(GL_DEPTH_BUFFER_BIT);
 
+    // E.g. the source color is blue and the destination color is black.
+    // The sum of both is blue.
     glBlendFunc(GL_ONE, GL_ONE);
     renderMesh(earthMesh, calculateEarthRotation(1), earthTexture);
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -111,6 +133,9 @@ void setViewportSize(GLFWwindow* window)
 
 static void renderMesh(mesh m, matrix transform, GLuint texture)
 {
+    // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindTexture.xhtml
+    // The value zero is reserved to represent the default texture for each
+    //texture target.
     glBindTexture(GL_TEXTURE_2D, texture);
     glEnable(GL_TEXTURE_2D);
     glPushMatrix();
@@ -257,6 +282,7 @@ static mesh createCubeMap(color col)
     };
 }
 
+// I guess the multiplier affects the animation speed.
 static matrix calculateEarthRotation(float multiplier)
 {
     float earthRotation = timePeriod(86400 * multiplier, 0) * 2.f * M_PI;

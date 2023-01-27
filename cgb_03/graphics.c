@@ -2,12 +2,12 @@
 #include "graphics.h"
 #include "scene.h"
 
-static GLFWwindow* window;
+static GLFWwindow *window;
 
 int startGraphics(int width, int height)
 {
     glfwSetErrorCallback(errorCallback);
-    
+
     if (!glfwInit())
     {
         printf("Error initilizing graphics.");
@@ -40,12 +40,12 @@ int startGraphics(int width, int height)
     return 0;
 }
 
-static void errorCallback(int error, const char* description)
+static void errorCallback(int error, const char *description)
 {
     printf("Error: %s\n", description);
 }
 
-static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
